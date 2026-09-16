@@ -1,0 +1,2 @@
+# Starter has no third-party dependencies.
+# Optional later: pydantic, pyyaml

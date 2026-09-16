@@ -1,0 +1,2 @@
+Make an AI that understands support tickets and decides if they are urgent
+and wants to reply nicely. Handle errors. It should be user-friendly.
