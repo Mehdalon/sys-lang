@@ -38,6 +38,22 @@ python3 run.py translate examples/ticket_triage.human.txt --prompt
 python3 run.py translate examples/ticket_triage.human.txt --out /tmp/ticket.sys.md
 ```
 
+### Verify — check a spec's symbols against real source
+
+`lint` and `translate` are one-way. `verify` closes the loop: parse an existing
+spec, extract the code identifiers each slot names, scan a source tree, and
+report `ok`/`missing` per symbol — exposing invented claims before codegen.
+
+```bash
+cd /path/to/sys-lang
+python3 run.py verify /tmp/ticket.sys.md /path/to/code_base
+# - IN: filename: ok  ·  inventory_db: missing
+```
+
+`verify` reads a spec file as-is (it does not re-translate or re-guess slots),
+supports dotted names (`store.save`), and exits non-zero when any symbol is
+missing.
+
 ### Option B — install editable
 
 ```bash

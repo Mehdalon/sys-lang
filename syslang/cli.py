@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 from .translate import codegen_prompt, lint, translate, translate_file
+from .verify import parse_spec_markdown, verify, verify_report_markdown
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -21,8 +22,26 @@ def main(argv: list[str] | None = None) -> int:
     p_tr.add_argument("--out", help="write spec here")
     p_tr.add_argument("--prompt", action="store_true", help="also print codegen prompt")
 
+    p_ver = sub.add_parser("verify", help="check spec symbols exist in source")
+    p_ver.add_argument("path", help="spec markdown file")
+    p_ver.add_argument("code_dir", help="source file or directory to scan")
+
     args = p.parse_args(argv)
     path = Path(args.path)
+
+    if args.cmd == "verify":
+        if not path.exists():
+            print(f"error: spec file not found: {path}", file=sys.stderr)
+            return 2
+        if not Path(args.code_dir).exists():
+            print(f"error: code path not found: {args.code_dir}", file=sys.stderr)
+            return 2
+        spec = parse_spec_markdown(path.read_text(encoding="utf-8"))
+        report = verify(spec, args.code_dir)
+        print(verify_report_markdown(report))
+        missing_count = len(report) and sum(len([k for k, v in c.items() if not v]) for c in report.values())
+        return 1 if missing_count else 0
+
     text = path.read_text(encoding="utf-8")
 
     if args.cmd == "lint":
