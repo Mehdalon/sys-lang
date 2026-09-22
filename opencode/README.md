@@ -83,6 +83,39 @@ cp opencode/sys-spec/SKILL.md AGENTS.md         # project-wide
 
 Nothing to restart — codex reads AGENTS.md per run.
 
+## Local model servers (Ollama, LM Studio, KoboldCPP)
+
+These aren't agents with instruction-file loaders — they serve models over an
+OpenAI-compatible API, so the discipline is injected as the **system prompt**
+(not a skill file). Two ways:
+
+**1. Ollama — bake it into a model via Modelfile**
+
+Strip the YAML frontmatter from `SKILL.md`, keep only the body, and set it as
+the system prompt:
+
+```
+FROM llama3
+SYSTEM """
+The user wants to build a system. Follow the SYS discipline:
+(contents of SKILL.md without the leading --- name/description ---)
+"""
+```
+
+```bash
+ollama create sys-spec -f Modelfile
+ollama run sys-spec
+```
+
+**2. LM Studio / KoboldCPP — paste into the system prompt field**
+
+- LM Studio: open a chat, set **System Prompt** to the `SKILL.md` body (frontmatter stripped). No persistent file install; re-add per-preset or save as a preset.
+- KoboldCPP: set the Prompt/context template's system section to the body, or run it purely as an opencode backend (OpenAI-compatible URL) and let the agent's `AGENTS.md` carry the discipline instead.
+
+In all three, the discipline is only as durable as your prompt preset — for
+authored code, prefer hooking them as backends under opencode/Claude Code and
+using the skill or AGENTS.md path above.
+
 ## Verify it loaded
 
 Ask the agent:
